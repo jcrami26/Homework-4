@@ -36,7 +36,7 @@ fviz_nbclust(Mallsv, kmeans, method="wss") + geom_vline(xintercept = 6, linetype
 
 
 
-#to obtain descriptive stats on 4 clusters
+#to obtain descriptive stats on 6 clusters
 set.seed(123)
 
 km.res <- kmeans(Mallsv, 6, nstart=25)
@@ -64,10 +64,6 @@ fviz_cluster(km.res, data=Dataforvisual,
 
 
 
-
-
-
-
 #Creating a boxplot for each variable by cluster provided by cluster datasets:
 
 #####################################################
@@ -81,11 +77,10 @@ dd$cluster <- as.factor(dd$cluster)
 
 is.factor(dd$cluster)
 
-#want to see murder distribution  by cluster 
+#want to see Age distribution by cluster 
 library(ggplot2)
 
-#to find min credit card limit
-#delete later
+#to find min and max Age limit
 min(dd$Age)
 max(dd$Age)
 
@@ -107,10 +102,10 @@ bar + geom_boxplot() + labs(x="Cluster", y="Age") +
 is.factor(dd$cluster)
 
 
-#want to see murder distribution  by cluster 
+#want to see Annual Income distribution by cluster 
 library(ggplot2)
 
-#to find min and max of Assault rates
+#to find min and max of Annual Income
 min(dd$Annual.Income..k..)
 max(dd$Annual.Income..k..)
 
@@ -131,10 +126,10 @@ bar + geom_boxplot() + labs(x="Cluster", y="Annual Income") +
 is.factor(dd$cluster)
 
 
-#want to see credit card limits  by gender contained in cluster 1 data
+#want to see Spending Score limits contained in cluster 1 data
 library(ggplot2)
 
-#to find min and max of Rape rates
+#to find the min and max of Spending score rates
 min(dd$Spending.Score..1.100.)
 max(dd$Spending.Score..1.100.)
 

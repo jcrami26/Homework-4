@@ -1,0 +1,263 @@
+#set working directory
+setwd("/cloud/project")
+
+MCE<-read.csv("Mall_Customers_extended.csv", header = TRUE)
+
+#to view variable names
+names(MCE)
+
+#######################################################
+## Short way to Standardize All Continuous Variables ##
+########################################################
+
+#to standardize all the variables in our data in one step 
+#provided that all the variables are continuous
+Mallcluster <- data.frame(MCE)
+
+Mall1 <-Mallcluster[ ,c ("Annual.Income..k..", "Spending.Score..1.100.", "Age")]
+
+
+Mall2<-data.frame(Mall1)
+
+Mallsv<- scale(Mall2)
+
+
+
+install.packages("factoextra")
+#install.packages("factoextra")
+library(factoextra)
+#install.packages("rstatix")
+install.packages("rstatix")
+#library(rstatix)
+library(rstatix)
+
+fviz_nbclust(Mallsv, kmeans, method="wss") + geom_vline(xintercept = 0, linetype = 2)
+
+fviz_nbclust(Mallsv, kmeans, method="wss") + geom_vline(xintercept = 6, linetype = 2)
+
+
+
+
+#to obtain descriptive stats on 6 clusters
+set.seed(123)
+
+km.res <- kmeans(Mallsv, 6, nstart=25)
+
+
+#merge in cluster number
+dd <- cbind(MCE, cluster=km.res$cluster)
+
+
+#one quick way to remove character variables for this part
+library(dplyr)
+
+Dataforvisual <- dd %>% select(-Genre,-AgeCategory,-IncomeTier)
+
+fviz_cluster(km.res, data=Dataforvisual, 
+             palette = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#FFC0CB", "#A020F0"), 
+             ellipse.type = "euclid", #Concentration ellipse
+             star.plot = TRUE, #Add segments from centroids to items
+             repel = TRUE, #Avoid label overplotting 
+             ggtheme = theme_minimal()
+)
+
+
+
+
+
+
+#Creating a boxplot for each variable by cluster provided by cluster datasets:
+
+#####################################################
+### Comparing Age across clusters via boxplots ###
+#####################################################
+
+#using all clusters
+is.factor(dd$cluster)
+
+dd$cluster <- as.factor(dd$cluster)
+
+is.factor(dd$cluster)
+
+#want to see Age distribution by cluster 
+library(ggplot2)
+
+#to find min and max Age limit
+min(dd$Age)
+max(dd$Age)
+
+
+#Boxplot
+bar <- ggplot(dd, aes(cluster, Age))
+
+bar + geom_boxplot() + labs(x="Cluster", y="Age") +
+  scale_y_continuous(limits = c(10, 75), breaks = seq(from =10, to = 75, by = 5)) + 
+  ggtitle("Age Distribution by Cluster ")
+
+
+
+#######################################################
+### Comparing Annual Income across clusters via boxplots ###
+#######################################################
+
+#using all clusters
+is.factor(dd$cluster)
+
+
+#want to see Annual Income distribution by cluster 
+library(ggplot2)
+
+#to find min and max of Annual Income
+min(dd$Annual.Income..k..)
+max(dd$Annual.Income..k..)
+
+
+#Boxplot
+bar <- ggplot(dd, aes(cluster, Annual.Income..k..))
+
+bar + geom_boxplot() + labs(x="Cluster", y="Annual Income") +
+  scale_y_continuous(limits = c(10, 150), breaks = seq(from =10, to = 150, by = 10)) + 
+  ggtitle("Annual Income distribution by Cluster ")
+
+
+
+###################################################
+### Comparing Spending Score across clusters via boxplots ###
+###################################################
+
+is.factor(dd$cluster)
+
+
+#want to see Spending Score limits contained in cluster 1 data
+library(ggplot2)
+
+#to find the min and max of Spending score rates
+min(dd$Spending.Score..1.100.)
+max(dd$Spending.Score..1.100.)
+
+
+#Boxplot
+bar3 <- ggplot(dd, aes(cluster, Spending.Score..1.100.))
+
+bar3 + geom_boxplot() + labs(x="Cluster", y="Spending Score") +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(from =0, to = 100, by = 5)) +
+  ggtitle("Spending Score Distribution by Cluster")
+
+
+
+##############################
+##    K-Means - Part 2 #######
+## Visualizing our Clusters ##
+##############################
+
+
+#create descriptive tables for each cluster
+cluster1 <- subset(Dataforvisual, Dataforvisual$cluster==1)
+
+cluster2 <- subset(Dataforvisual, Dataforvisual$cluster==2)
+
+cluster3 <- subset(Dataforvisual, Dataforvisual$cluster==3)
+
+cluster4 <- subset(Dataforvisual, Dataforvisual$cluster==4)
+
+cluster5 <- subset(Dataforvisual, Dataforvisual$cluster==5)
+
+cluster6 <- subset(Dataforvisual, Dataforvisual$cluster==6)
+### Creating descriptive statistics for each cluster
+
+install.packages("stargazer")
+library(stargazer)
+
+stargazer(cluster1, type="text", title="Descriptive Statistics for Cluster 1", digits=1, out="table_Cluster1.txt")
+
+stargazer(cluster2, type="text", title="Descriptive Statistics for Cluster 2", digits=1, out="table_Cluster2.txt")
+
+stargazer(cluster3, type="text", title="Descriptive Statistics for Cluster 3", digits=1, out="table_Cluster3.txt")
+
+stargazer(cluster4, type="text", title="Descriptive Statistics for Cluster 4", digits=1, out="table_Cluster4.txt")
+
+stargazer(cluster5, type="text", title="Descriptive Statistics for Cluster 5", digits=1, out="table_Cluster5.txt")
+
+stargazer(cluster6, type="text", title="Descriptive Statistics for Cluster 6", digits=1, out="table_Cluster6.txt")
+
+attach(Dataforvisual)
+
+install.packages("leaps")
+
+library(leaps)
+
+model1 <- lm(LoyaltyScore ~ Satisfaction + Age + IncomePerAge, data = cluster1)
+
+summary(model1)
+
+#in cluster 1 see below
+#Satisfaction,age,and incomeperage affects the loyaltyscore in a negative way
+#for every unit decrease in satisfaction the loyalty score decreases by 2.4431
+#for every unit decrease in age the loyalty score decreases by 0.3880
+#for every unit decrease in Incomeperage the loyalty score decreases by 8.6663
+
+model2 <- lm(LoyaltyScore ~ Satisfaction + Age + IncomePerAge, data = cluster2)
+
+summary(model2)
+
+#in cluster 2 see below
+#Satisfactionaffects the loyalty score in a negative way
+#age,and incomeperage affects the loyaltyscore in a postive way
+#for every unit decrease in satisfaction the loyalty score decreases by 0.9662
+#for every unit increase in age the loyalty score increase by 0.1712
+#for every unit increase in Incomeperage the loyalty score increases by 1.7719
+
+
+
+model3 <- lm(LoyaltyScore ~ Satisfaction + Age + IncomePerAge, data = cluster3)
+
+summary(model3)
+
+#in cluster 3 see below
+#Satisfaction,and incomeperage affects the loyaltyscore in a negative way
+#age affects the loyalty score in a psotive way 
+#for every unit decrease in satisfaction the loyalty score decreases by 2.6178
+#for every unit increase in age the loyalty score increase by 0.1797
+#for every unit decrease in Incomeperage the loyalty score decreases by 0.7785
+
+
+
+model4 <- lm(LoyaltyScore ~ Satisfaction + Age + IncomePerAge, data = cluster4)
+
+summary(model4)
+
+#in cluster 4 see below
+#Satisfaction,age,and incomeperage affects the loyaltyscore in a negative way
+#for every unit decrease in satisfaction the loyalty score decreases by 0.7343
+#for every unit decrease in age the loyalty score decreases by 1.2383
+#for every unit decrease in Incomeperage the loyalty score decreases by 5.8616
+
+
+
+model5 <- lm(LoyaltyScore ~ Satisfaction + Age + IncomePerAge, data = cluster5)
+
+summary(model5)
+
+#in cluster 5 see below
+#Satisfaction,and incomeperage affects the loyaltyscore in a positive way
+#age affects the loyaltyy score in a negative way 
+#for every unit increase in satisfaction the loyalty score increases by .05815
+#for every unit decrease in age the loyalty score decreases by 0.1001
+#for every unit increase in Incomeperage the loyalty score increases by 1.4999
+
+model6 <- lm(LoyaltyScore ~ Satisfaction + Age + IncomePerAge, data = cluster6)
+
+summary(model6)
+
+#in cluster 6 see below
+#Satisfaction,and incomeperage affects the loyaltyscore in a positive way
+#age affects the loyaltyy score in a negative way 
+#for every unit increase in satisfaction the loyalty score increases by 1.6415
+#for every unit decrease in age the loyalty score decreases by 0.2014
+#for every unit increase in Incomeperage the loyalty score increases by 30.4455
+
+#income predicts loyalty more stromgly in Cluster 6 
+#Satisfaction matters more among younger groups than older groups.
+#Cluster 4 shows the highest baseline LoyaltyScore (Intercept = 95.9),
+#indicating that members of Cluster 4 start off with the strongest
+#inherent loyalty,even before satisfaction, age, or income are considered.

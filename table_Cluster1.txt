@@ -1,0 +1,19 @@
+
+Descriptive Statistics for Cluster 1
+=================================================
+Statistic              N  Mean St. Dev. Min  Max 
+-------------------------------------------------
+Unnamed..0             45 83.8   24.9    41  161 
+CustomerID             45 83.8   24.9    41  161 
+Age                    45 56.3   8.5     43   70 
+Annual.Income..k..     45 54.3   9.0     38   79 
+Spending.Score..1.100. 45 49.1   6.3     35   60 
+IncomePerAge           45 1.0    0.2    0.6  1.4 
+SpendingEfficiency     45 0.9    0.2    0.4  1.4 
+HighSpender            45 0.0    0.0     0    0  
+OnlineShopFreq         45 4.8    1.3    2.6  7.9 
+LoyaltyScore           45 49.1   11.3   25.8 75.6
+Satisfaction           45 3.0    1.1     1    5  
+CreditUtilization      45 0.9    0.2    0.4  1.4 
+cluster                45 1.0    0.0     1    1  
+-------------------------------------------------
